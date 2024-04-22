@@ -7,7 +7,7 @@
 // Data
 const account1 = {
   owner: 'Jonas Schmedtmann',
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  movements: [200, 450, -400, 3000, -650, -130, 70, 1300, 10000],
   interestRate: 1.2, // %
   pin: 1111,
   movementsDates: [
@@ -18,6 +18,7 @@ const account1 = {
     '2024-04-05T14:11:59.604Z',
     '2024-04-07T17:01:17.194Z',
     '2024-04-09T23:36:17.929Z',
+    '2024-04-11T10:51:36.790Z',
     '2024-04-11T10:51:36.790Z',
   ],
   currency: 'EUR',
@@ -81,7 +82,28 @@ const account4 = {
   locale: 'en-US',
 };
 
-const accounts = [account1, account2, account3, account4];
+const account5 = {
+  owner: 'Stanislav Ocunev',
+  movements: [200, 450, -400, 3000, -650, -130, 70, 1300, 10000, 20000],
+  interestRate: 1.2, // %
+  pin: 5555,
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2019-12-23T07:42:02.383Z',
+    '2020-01-28T09:15:04.904Z',
+    '2020-04-01T10:17:24.185Z',
+    '2024-04-05T14:11:59.604Z',
+    '2024-04-07T17:01:17.194Z',
+    '2024-04-09T23:36:17.929Z',
+    '2024-04-11T10:51:36.790Z',
+    '2024-04-17T10:51:36.790Z',
+    '2024-04-22T10:51:36.790Z',
+  ],
+  currency: 'EUR',
+  locale: 'en-US',
+};
+
+const accounts = [account1, account2, account3, account4, account5];
 
 // Elements
 const labelWelcome = document.querySelector('.welcome');
@@ -191,7 +213,30 @@ function updateUI(acc) {
   calcDisplaySummary(acc);
 }
 
+const startLogOutTimer = () => {
+  const tick = () => {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    labelTimer.textContent = `${min}:${sec}`;
+
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = '';
+      containerApp.style.opacity = 0;
+    }
+    time--;
+  };
+
+  let time = 300;
+
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
 let currentAccount;
+let timer;
 btnLogin.addEventListener('click', e => {
   e.preventDefault();
   console.log('Login');
@@ -225,6 +270,9 @@ btnLogin.addEventListener('click', e => {
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
+
     updateUI(currentAccount);
   }
 });
@@ -249,6 +297,9 @@ btnTransfer.addEventListener('click', e => {
     receverAcc.movementsDates.push(new Date().toISOString());
 
     updateUI(currentAccount);
+
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
   inputTransferAmount.value = inputTransferTo.value = '';
 });
@@ -263,6 +314,9 @@ btnLoan.addEventListener('click', e => {
     currentAccount.movementsDates.push(new Date().toISOString());
 
     updateUI(currentAccount);
+
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
   inputLoanAmount.value = '';
 });
@@ -290,7 +344,7 @@ btnSort.addEventListener('click', e => {
 });
 
 //FAKE ALWAYS LOGGED IN///
-currentAccount = account1;
-updateUI(currentAccount);
-containerApp.style.opacity = 100;
+// currentAccount = account1;
+// updateUI(currentAccount);
+// containerApp.style.opacity = 100;
 ////////////
